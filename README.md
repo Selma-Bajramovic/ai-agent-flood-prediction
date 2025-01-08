@@ -102,7 +102,7 @@ cd flood_prediction
 │   ├── model.py
 ├── frontend
 │   ├── frontend.py
-├── README.md 
+├── README.md
 
 ---
 
