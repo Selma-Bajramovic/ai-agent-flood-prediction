@@ -76,11 +76,11 @@ This project is a comprehensive AI and Machine Learning-based application for pr
 1. **Clone the repository:**
 git clone https://github.com/Selma-Bajramovic/ai-agent-flood-prediction.git
 cd flood_prediction
-2. **Train the model:**
+3. **Train the model:**
    python model.py
-3. **Start the Flask backend:**
+4. **Start the Flask backend:**
    python app.py
-4. **Launch the Tkinter GUI:**
+5. **Launch the Tkinter GUI:**
    python frontend.py
 
 ---
