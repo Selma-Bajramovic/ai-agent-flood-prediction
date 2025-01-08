@@ -123,11 +123,6 @@ cd flood_prediction
 
 ---
 
-## License
-This project is open-source and available under the MIT License.
-
----
-
 ## Acknowledgments
 - **Visual Crossing Weather API**: For providing real-time weather data.
 - **scikit-learn**: For the robust machine learning library.
