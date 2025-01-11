@@ -1,34 +1,29 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk
 import requests
 from datetime import datetime, timedelta
+import tkinter as tk
+from tkinter import messagebox
 
 def send_data():
-    city = city_var.get()
     try:
+        city = city_entry.get()
         days = int(days_entry.get())
-    except ValueError:
-        messagebox.showerror("Upozorenje", "Molimo unesite validan broj.")
-        return
+        
+        if not city or not days:
+            messagebox.showerror("Error", "Molimo unesite sve podatke.")
+            return
+        
+        data = {
+            "city": city,
+            "days": days
+        }
 
-    if not city:
-        messagebox.showerror("Upozorenje", "Molimo odaberite grad.")
-        return
-
-    if days < 1 or days > 10:
-        messagebox.showwarning("Upozorenje", "Predikcije se mogu obavljati za narednih 10 dana. Molimo unesite broj između 1 i 10, te pokušajte ponovo.")
-        days_entry.delete(0, tk.END)
-        return
-
-    data = {
-        "city": city,
-        "days": days
-    }
-
-    try:
         response = requests.post("http://127.0.0.1:5000/predict_flood", json=data)
+        
         if response.status_code == 200:
             predictions = response.json()
+            print(f"API Response: {predictions}")
+
             for row in table.get_children():
                 table.delete(row)
 
@@ -36,80 +31,70 @@ def send_data():
 
             for prediction in predictions:
                 day_value = prediction['day']
-
                 try:
                     date_obj = today + timedelta(days=day_value)
                     formatted_date = date_obj.strftime('%d.%m.%Y.')
                 except ValueError:
                     formatted_date = str(day_value)
 
-                risk_level = prediction['risk_level']
-                actual_precip = float(prediction['actual_precip'])
-                predicted_precip = float(prediction['predicted_precip'])
+                table.insert('', 'end', values=(formatted_date, prediction['predicted_flood_risk'], 
+                                                prediction['precip'], prediction['humidity'], prediction['precipprob']))
 
-                difference = "{:.2f}".format(prediction['difference'])
-
-                table.insert("", "end", values=(
-                    formatted_date,
-                    predicted_precip,
-                    actual_precip,
-                    difference,
-                    risk_level
-                ))
         else:
-            messagebox.showerror("Greška", "Došlo je do greške prilikom dobavljanja podataka.")
+            messagebox.showerror("Error", "Greška pri dohvatu podataka.")
+    
     except Exception as e:
-        messagebox.showerror("Greška", f"Došlo je do greške: {str(e)}")
+        messagebox.showerror("Error", f"Greška: {str(e)}")
 
 root = tk.Tk()
-root.title("Predikcija rizika od poplave")
-root.geometry("1000x600")
-root.configure(bg="#f3cea9") 
+root.title("Flood Prediction")
 
 style = ttk.Style()
 style.theme_use("clam")
-style.configure("TButton", background="#ed987c", foreground="#8B4513", font=("Arial", 14, "bold"))
-style.configure("TLabel", background="#f3cea9", font=("Arial", 12), foreground="#8B4513")
-style.configure("TEntry", font=("Arial", 12), foreground="#8B4513")  
-style.configure("Treeview", font=("Arial", 12), rowheight=30, fieldbackground="#f3cea9", height=20)
-style.configure("Treeview.Heading", font=("Arial", 14, "bold"), background="#ed987c", foreground="#8B4513")
-style.map("TButton", background=[("active", "#ed8f7c")])
 
-tk.Label(root, text="Izaberite grad za koji želite predikciju:", bg="#f3cea9", font=("Arial", 16), fg="#8B4513").pack(padx=10, pady=5)
+style.configure("TLabel", font=("Arial", 14), foreground="#2f4f4f", background="#f0f8ff")
+style.configure("TEntry", font=("Arial", 14), foreground="#2f4f4f", padding=5, relief="solid")
+style.configure("TButton", background="#6c8ea1", foreground="white", font=("Arial", 14, "bold"))
+style.map("TButton", background=[("active", "#4a6b7d")])
 
-city_var = tk.StringVar()
-city_menu = ttk.Combobox(root, textvariable=city_var, values=["Mostar", "Jablanica", "Fojnica"], font=("Arial", 12))
-city_menu.set("Mostar")
-city_menu.pack(padx=10, pady=5)
+city_label = ttk.Label(root, text="Grad:")
+city_label.grid(row=0, column=0, padx=10, pady=10)
+city_entry = ttk.Entry(root)
+city_entry.grid(row=0, column=1, padx=10, pady=10)
 
-tk.Label(root, text="Unesite broj dana (1 - 10):", bg="#f3cea9", font=("Arial", 16), fg="#8B4513").pack(padx=10, pady=5)
+days_label = ttk.Label(root, text="Broj dana:")
+days_label.grid(row=1, column=0, padx=10, pady=10)
+days_entry = ttk.Entry(root)
+days_entry.grid(row=1, column=1, padx=10, pady=10)
 
-days_entry = ttk.Entry(root, font=("Arial", 12))
-days_entry.pack(padx=10, pady=5)
+predict_button = ttk.Button(root, text="Predvidi Poplavu", command=send_data)
+predict_button.grid(row=2, columnspan=2, pady=20)
 
-predict_button = ttk.Button(root, text="Predvidi rizik od poplave", command=send_data)
-predict_button.pack(padx=10, pady=20)
+table = ttk.Treeview(root, columns=("Date", "Risk", "Precip", "Humidity", "Precip Prob"), show="headings", style="Treeview")
+table.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
 
-table_frame = tk.Frame(root, bg="#edb47c") 
-table_frame.pack(padx=10, pady=10, fill="both", expand=True)
+table.heading("Date", text="Datum")
+table.heading("Risk", text="Rizik")
+table.heading("Precip", text="Padavine (mm)")
+table.heading("Humidity", text="Vlaga (%)")
+table.heading("Precip Prob", text="Vjerojatnost padavina (%)")
 
-columns = ("day", "predicted_precip", "actual_precip", "difference", "risk_level")
-table = ttk.Treeview(table_frame, columns=columns, show="headings", style="Treeview")
-table.heading("day", text="Dan")
-table.heading("predicted_precip", text="Predviđeni padavine (mm)")
-table.heading("actual_precip", text="Stvarne padavine (mm)")
-table.heading("difference", text="Razlika")
-table.heading("risk_level", text="Rizik od poplave")
+style.configure("Treeview", font=("Arial", 12), rowheight=30, fieldbackground="#f0f8ff", height=10)
+style.configure("Treeview.Heading", font=("Arial", 14, "bold"), background="#6c8ea1", foreground="white")
 
-table.column("day", anchor="center", width=90, minwidth=80)
-table.column("predicted_precip", anchor="center", width=150, minwidth=150)
-table.column("actual_precip", anchor="center", width=150, minwidth=150)
-table.column("difference", anchor="center", width=150, minwidth=150)
-table.column("risk_level", anchor="center", width=200, minwidth=200)
+table.column("Date", anchor="w", width=200)
+table.column("Risk", anchor="center", width=150)
+table.column("Precip", anchor="center", width=150)
+table.column("Humidity", anchor="center", width=150)
+table.column("Precip Prob", anchor="center", width=200)
 
-table.pack(fill="both", expand=True)
-
-scrollbar = ttk.Scrollbar(table_frame, orient="vertical", command=table.yview)
+scrollbar = ttk.Scrollbar(root, orient="vertical", command=table.yview)
+scrollbar.grid(row=3, column=3, sticky="ns", padx=10)
 table.configure(yscrollcommand=scrollbar.set)
+
+root.grid_rowconfigure(3, weight=1)
+root.grid_columnconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=1)
+root.grid_columnconfigure(2, weight=1)
 
 root.mainloop()
