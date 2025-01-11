@@ -90,19 +90,19 @@ cd flood_prediction
 .
 ├── backend
 │   ├── data
-│   │   └── fetch_data.py
-│   │   └── fojnica_weather.csv
-│   │   └── jablanica_weather.csv
-│   │   └── merged_data.py
-│   │   └── merged_flood_data.csv
+│   │   ├── fetch_data.py
+│   │   ├── fojnica_weather.csv
+│   │   ├── jablanica_weather.csv
+│   │   ├── merged_data.py
+│   │   ├── merged_flood_data.csv
 │   │   └── mostar_weather.csv
 │   ├── model
 │   │   └── flood_prediction_model.pkl
 │   ├── app.py
-│   ├── model.py
+│   └── model.py
 ├── frontend
-│   ├── frontend.py
-├── README.md
+│   └── frontend.py
+└── README.md
 
 ---
 
