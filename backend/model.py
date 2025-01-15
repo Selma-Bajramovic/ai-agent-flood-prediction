@@ -24,7 +24,7 @@ def fetch_weather_data_from_api(city, date):
     Dohvata vremenske podatke za određeni grad i datum.
     """
     BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline'
-    API_KEY = 'ZP733DHUT7J9KPJTFUHY4WYBW'
+    API_KEY = 'VISUAL_CROSSING_API_KEY'
     url = f"{BASE_URL}/{city}/{date}"
     params = {
         'unitGroup': 'metric',
