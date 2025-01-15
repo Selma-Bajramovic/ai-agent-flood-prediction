@@ -11,7 +11,7 @@ CORS(app)
 
 model = joblib.load(r'C:\Users\User\Desktop\flood_prediction\backend\model\flood_prediction_model.pkl')
 
-API_KEY = 'ZP733DHUT7J9KPJTFUHY4WYBW' 
+API_KEY = 'VISUAL_CROSSING_API_KEY' 
 BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline'
 
 def fetch_weather_data_from_api(city, date):
