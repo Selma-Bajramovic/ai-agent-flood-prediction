@@ -86,8 +86,7 @@ cd flood_prediction
 ---
 
 # File Structure
-
-.
+```
 ├── backend
 │   ├── data
 │   │   ├── fetch_data.py
@@ -103,7 +102,7 @@ cd flood_prediction
 ├── frontend
 │   └── frontend.py
 └── README.md
-
+```
 ---
 
 ## How It Works  
